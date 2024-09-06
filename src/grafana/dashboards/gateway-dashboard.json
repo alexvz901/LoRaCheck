@@ -1,0 +1,23 @@
+
+{
+  "id": null,
+  "title": "Gateway Monitor Dashboard",
+  "tags": [],
+  "timezone": "browser",
+  "schemaVersion": 16,
+  "version": 1,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Gateway Uptime",
+      "targets": [
+        {
+          "expr": "up",
+          "legendFormat": "instance",
+          "refId": "A"
+        }
+      ],
+      "datasource": "Prometheus"
+    }
+  ]
+}

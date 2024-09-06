@@ -1,0 +1,17 @@
+# Golang base image
+FROM golang:1.22.2
+
+WORKDIR /app
+
+# Dependencies
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy codebase
+COPY . .
+
+# Build the Go backend
+RUN go build -o gateway-monitor .
+
+# Run the Go application
+CMD ["./gateway-monitor"]

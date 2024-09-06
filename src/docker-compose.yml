@@ -1,0 +1,36 @@
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - monitor-net
+
+  grafana:
+    image: grafana/grafana:latest
+    volumes:
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/dashboards:/var/lib/grafana/dashboards  # Deze map bevat de JSON-dashboardbestanden
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - monitor-net
+
+  go-backend:
+    build:
+      context: ./go-backend
+      dockerfile: dockerfile
+    volumes:
+      - ./grafana/dashboards:/var/lib/grafana/dashboards  # Zelfde map als in Grafana, zodat de Go-backend hier kan schrijven
+    networks:
+      - monitor-net
+    depends_on:
+      - prometheus
+
+networks:
+  monitor-net:
