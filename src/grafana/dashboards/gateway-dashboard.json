@@ -1,4 +1,3 @@
-
 {
   "id": null,
   "title": "Gateway Monitor Dashboard",
@@ -12,7 +11,7 @@
       "title": "Gateway Uptime (Last 7 Days)",
       "targets": [
         {
-          "expr": "rate(up{job='gateway'}[1w])",
+          "expr": "avg_over_time(gateway_online_status{name='Gw1'}[7d]) * 100",
           "legendFormat": "Gw1 uptime",
           "refId": "A"
         }
@@ -29,6 +28,7 @@
       "datasource": "Prometheus",
       "fieldConfig": {
         "defaults": {
+          "unit": "percent",
           "thresholds": {
             "mode": "percentage",
             "steps": [
@@ -50,7 +50,7 @@
       "title": "Gateway Status History",
       "targets": [
         {
-          "expr": "up{job='gateway', instance='Gw1'}",
+          "expr": "avg_over_time(gateway_online_status{name='Gw1'}[30m])",
           "refId": "A"
         }
       ],
@@ -68,8 +68,8 @@
           "thresholds": {
             "steps": [
               {"color": "red", "value": 0},
-              {"color": "orange", "value": 1},
-              {"color": "green", "value": 2}
+              {"color": "orange", "value": 0.5},
+              {"color": "green", "value": 1}
             ]
           }
         }
@@ -87,7 +87,7 @@
       "title": "Gateway Geomap",
       "targets": [
         {
-          "expr": "up{job='gateway', instance='Gw1'}",
+          "expr": "gateway_online_status",
           "refId": "A"
         }
       ],
@@ -106,7 +106,6 @@
         "layers": [
           {
             "type": "point",
-            "url": "",
             "label": "Gateways",
             "source": {
               "type": "table"
