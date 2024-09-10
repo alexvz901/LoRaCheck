@@ -12,7 +12,7 @@
       "title": "Gateway Uptime (Last 7 Days)",
       "targets": [
         {
-          "expr": "rate(up{job='gateway'}[1w])",
+          "expr": "avg_over_time(gateway_link_status{gateway_name='Gw1'}[1w]) * 100",
           "legendFormat": "Gw1 uptime",
           "refId": "A"
         }
@@ -87,7 +87,7 @@
       "title": "Gateway Geomap",
       "targets": [
         {
-          "expr": "up{job='gateway', instance='Gw1'}",
+          "expr": "up{job='gateway_link_status'}",
           "refId": "A"
         }
       ],
@@ -117,14 +117,14 @@
         "mapView": {
           "lat": 52.3676,
           "lon": 4.9041,
-          "zoom": 6
+          "zoom": 2000
         }
       },
       "gridPos": {
-        "h": 10,
-        "w": 16,
-        "x": 0,
-        "y": 6
+        "h": 21,
+        "w": 8,
+        "x": 16,
+        "y": 0
       }
     }
   ]

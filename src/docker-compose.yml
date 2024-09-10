@@ -5,7 +5,6 @@ services:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
-    
     networks:
       - monitor-net
 
@@ -17,7 +16,6 @@ services:
       - ./grafana/dashboards:/var/lib/grafana/dashboards  
     ports:
       - "3000:3000"
-
     depends_on:
       - prometheus
     networks:
@@ -26,9 +24,7 @@ services:
   go-backend:
     build:
       context: ./go-backend
-      dockerfile: dockerfile
-    volumes:
-      - ./grafana/dashboards:/var/lib/grafana/dashboards  
+      dockerfile: Dockerfile
     ports:
       - "9100:9100"
     networks:
