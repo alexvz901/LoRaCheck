@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -32,14 +31,30 @@ type GatewaysFile struct {
 	Gateways []Gateway `json:"gateways"`
 }
 
-// Prometheus metrics per link
+// Prometheus metrics for link status, latitude and longitude
 var (
 	gatewayLinkStatus = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "gateway_link_status",
 			Help: "Shows link status: 1 for online, 0 for offline",
 		},
-		[]string{"gateway_name", "link_url", "latitude", "longitude"},
+		[]string{"gateway_name", "link_url"},
+	)
+
+	gatewayLatitude = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "gateway_latitude",
+			Help: "Latitude of the gateway",
+		},
+		[]string{"gateway_name"},
+	)
+
+	gatewayLongitude = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "gateway_longitude",
+			Help: "Longitude of the gateway",
+		},
+		[]string{"gateway_name"},
 	)
 )
 
@@ -48,10 +63,12 @@ var fetchInterval time.Duration
 
 // Initialize Prometheus metrics and set fetch interval
 func init() {
-	// Register the link status metric
+	// Register the link status, latitude, and longitude metrics
 	prometheus.MustRegister(gatewayLinkStatus)
+	prometheus.MustRegister(gatewayLatitude)
+	prometheus.MustRegister(gatewayLongitude)
 
-	// Get fetch interval from environment variable (default 5 minutes)
+	// Get fetch interval from environment variable (default 1 minute)
 	interval, err := strconv.Atoi(os.Getenv("FETCH_INTERVAL"))
 	if err != nil || interval <= 0 {
 		fetchInterval = 1 * time.Minute // default value
@@ -112,8 +129,18 @@ func FetchGatewayLinkStatus(url string) bool {
 	return false
 }
 
-// UpdateGatewayStatus checks all the links for a gateway and updates Prometheus metrics for each link
+// UpdateGatewayStatus updates Prometheus metrics for a gateway's link status, latitude, and longitude
 func UpdateGatewayStatus(gateway Gateway) {
+	// Record latitude and longitude in Prometheus
+	gatewayLatitude.With(prometheus.Labels{
+		"gateway_name": gateway.Name,
+	}).Set(gateway.Location.Latitude)
+
+	gatewayLongitude.With(prometheus.Labels{
+		"gateway_name": gateway.Name,
+	}).Set(gateway.Location.Longitude)
+
+	// Check link status for each link in the gateway and update Prometheus
 	for _, check := range gateway.Checks {
 		var status float64
 		if FetchGatewayLinkStatus(check.URL) {
@@ -122,12 +149,10 @@ func UpdateGatewayStatus(gateway Gateway) {
 			status = 0 // Link is offline
 		}
 
-		// Update Prometheus metric per link
+		// Update Prometheus metric for link status
 		gatewayLinkStatus.With(prometheus.Labels{
 			"gateway_name": gateway.Name,
 			"link_url":     check.URL,
-			"latitude":     fmt.Sprintf("%f", gateway.Location.Latitude),
-			"longitude":    fmt.Sprintf("%f", gateway.Location.Longitude),
 		}).Set(status)
 
 		log.Printf("Updated Prometheus metrics for gateway %s, link %s, status: %f", gateway.Name, check.URL, status)
@@ -141,7 +166,7 @@ func MonitorGateways(gatewaysFile *GatewaysFile) {
 			UpdateGatewayStatus(gateway)
 		}
 		log.Printf("Sleeping for %v before next fetch...", fetchInterval)
-		time.Sleep(fetchInterval) // Use dynamic fetch interval
+		time.Sleep(fetchInterval)
 	}
 }
 

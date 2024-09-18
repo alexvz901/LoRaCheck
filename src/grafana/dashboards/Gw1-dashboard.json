@@ -1,131 +1,304 @@
-
 {
-  "id": null,
-  "title": "Gateway Monitor Dashboard",
-  "tags": [],
-  "timezone": "browser",
-  "schemaVersion": 16,
-  "version": 1,
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
   "panels": [
     {
-      "type": "stat",
-      "title": "Gateway Uptime (Last 7 Days)",
-      "targets": [
-        {
-          "expr": "avg_over_time(gateway_link_status{gateway_name='Gw1'}[1w]) * 100",
-          "legendFormat": "Gw1 uptime",
-          "refId": "A"
-        }
-      ],
-      "options": {
-        "reduceOptions": {
-          "calcs": ["mean"],
-          "fields": "",
-          "values": false
-        },
-        "orientation": "auto",
-        "textMode": "value"
+      "datasource": {
+        "default": true,
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
       },
-      "datasource": "Prometheus",
       "fieldConfig": {
         "defaults": {
+          "fieldMinMax": false,
+          "mappings": [],
+          "max": 100,
+          "min": 0,
           "thresholds": {
-            "mode": "percentage",
+            "mode": "absolute",
             "steps": [
-              {"color": "red", "value": 0},
-              {"color": "green", "value": 95}
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 95
+              }
             ]
           }
-        }
+        },
+        "overrides": []
       },
       "gridPos": {
         "h": 6,
         "w": 8,
         "x": 0,
         "y": 0
-      }
-    },
-    {
-      "type": "status-history",
-      "title": "Gateway Status History",
-      "targets": [
-        {
-          "expr": "up{job='gateway', instance='Gw1'}",
-          "refId": "A"
-        }
-      ],
+      },
+      "id": 1,
       "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "mean"
+          ],
           "fields": "",
           "values": false
         },
-        "orientation": "auto",
-        "showValue": "auto"
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "avg_over_time(gateway_link_status{gateway_name='Gw1'}[1w]) * 100",
+          "format": "time_series",
+          "legendFormat": "Gw1 uptime",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Gateway Uptime (Last 7 Days)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "default": true,
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "fillOpacity": 39,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
           "thresholds": {
+            "mode": "absolute",
             "steps": [
-              {"color": "red", "value": 0},
-              {"color": "orange", "value": 1},
-              {"color": "green", "value": 2}
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.1
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
             ]
           }
-        }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "{gateway_name=\"Gw1\"}"
+            },
+            "properties": [
+              {
+                "id": "custom.lineWidth",
+                "value": 1
+              },
+              {
+                "id": "displayName",
+                "value": "-"
+              }
+            ]
+          }
+        ]
       },
-      "datasource": "Prometheus",
       "gridPos": {
         "h": 6,
         "w": 8,
         "x": 8,
         "y": 0
-      }
-    },
-    {
-      "type": "geomap",
-      "title": "Gateway Geomap",
+      },
+      "id": 2,
+      "options": {
+        "colWidth": 0.89,
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "rowHeight": 0.67,
+        "showValue": "never",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
       "targets": [
         {
-          "expr": "up{job='gateway_link_status'}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "avg by (gateway_name)(gateway_link_status)\r\n\r\n",
+          "range": true,
           "refId": "A"
         }
       ],
+      "title": "Gateway Status History",
+      "type": "status-history"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
       "fieldConfig": {
         "defaults": {
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": [],
           "thresholds": {
+            "mode": "absolute",
             "steps": [
-              {"color": "red", "value": 0},
-              {"color": "orange", "value": 1},
-              {"color": "green", "value": 2}
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.5
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
             ]
           }
-        }
-      },
-      "options": {
-        "layers": [
-          {
-            "type": "point",
-            "url": "",
-            "label": "Gateways",
-            "source": {
-              "type": "table"
-            },
-            "colorField": "value"
-          }
-        ],
-        "mapView": {
-          "lat": 52.3676,
-          "lon": 4.9041,
-          "zoom": 2000
-        }
+        },
+        "overrides": []
       },
       "gridPos": {
         "h": 21,
         "w": 8,
         "x": 16,
         "y": 0
-      }
+      },
+      "id": 3,
+      "options": {
+        "controls": {
+          "mouseWheelZoom": true,
+          "showAttribution": true,
+          "showDebug": false,
+          "showMeasure": false,
+          "showScale": false,
+          "showZoom": true
+        },
+        "layers": [
+          {
+            "colorField": "value",
+            "label": "Gateways",
+            "source": {
+              "type": "table"
+            },
+            "type": "point",
+            "url": ""
+          }
+        ],
+        "mapView": {
+          "lat": 52.3676,
+          "lon": 4.9041,
+          "zoom": 2000
+        },
+        "tooltip": {
+          "mode": "details"
+        },
+        "view": {
+          "allLayers": true,
+          "id": "zero",
+          "lat": 0,
+          "lon": 0,
+          "zoom": 1
+        }
+      },
+      "pluginVersion": "11.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "up{job='gateway_link_status'}",
+          "refId": "A"
+        }
+      ],
+      "title": "Gateway Geomap",
+      "type": "geomap"
     }
-  ]
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-5m",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Gateway Monitor Dashboard",
+  "uid": "adxk04g7ity4gf",
+  "version": 8,
+  "weekStart": ""
 }
