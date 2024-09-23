@@ -306,10 +306,10 @@
         },
         "view": {
           "allLayers": true,
-          "id": "zero",
-          "lat": 0,
-          "lon": 0,
-          "zoom": 1
+          "id": "coords",
+          "lat": 52.050978,
+          "lon": 5.324186,
+          "zoom": 6.05
         }
       },
       "pluginVersion": "11.2.0",
