@@ -11,3 +11,8 @@ To install LoRaCheck to docker:
 3. in a docker terminal, open the 'src' directory.
 4. execute the command 'docker-compose up'.
 5. open the dashboard on 'localhost:3000'.
+
+# How to add gateways to the dashboard
+todo?
+
+# additional notes 
