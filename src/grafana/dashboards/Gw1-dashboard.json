@@ -194,6 +194,7 @@
     },
     {
       "datasource": {
+        "default": true,
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
@@ -235,6 +236,11 @@
       },
       "id": 3,
       "options": {
+        "basemap": {
+          "config": {},
+          "name": "Layer 0",
+          "type": "default"
+        },
         "controls": {
           "mouseWheelZoom": true,
           "showAttribution": true,
@@ -245,13 +251,49 @@
         },
         "layers": [
           {
-            "colorField": "value",
-            "label": "Gateways",
-            "source": {
-              "type": "table"
+            "config": {
+              "showLegend": true,
+              "style": {
+                "color": {
+                  "fixed": "dark-green"
+                },
+                "opacity": 0.4,
+                "rotation": {
+                  "fixed": 0,
+                  "max": 360,
+                  "min": -360,
+                  "mode": "mod"
+                },
+                "size": {
+                  "fixed": 5,
+                  "max": 15,
+                  "min": 2
+                },
+                "symbol": {
+                  "fixed": "img/icons/marker/circle.svg",
+                  "mode": "fixed"
+                },
+                "symbolAlign": {
+                  "horizontal": "center",
+                  "vertical": "center"
+                },
+                "textConfig": {
+                  "fontSize": 12,
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "textAlign": "center",
+                  "textBaseline": "middle"
+                }
+              }
             },
-            "type": "point",
-            "url": ""
+            "location": {
+              "latitude": "gateway_location",
+              "longitude": "gateway_location",
+              "mode": "auto"
+            },
+            "name": "Layer 1",
+            "tooltip": true,
+            "type": "markers"
           }
         ],
         "mapView": {
@@ -277,11 +319,28 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "up{job='gateway_link_status'}",
-          "refId": "A"
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "exemplar": false,
+          "expr": "gateway_location{gateway_name=\"Gw1\"}",
+          "format": "time_series",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "",
+          "range": false,
+          "refId": "A",
+          "useBackend": false
         }
       ],
       "title": "Gateway Geomap",
+      "transformations": [
+        {
+          "id": "labelsToFields",
+          "options": {}
+        }
+      ],
       "type": "geomap"
     }
   ],
@@ -299,6 +358,6 @@
   "timezone": "browser",
   "title": "Gateway Monitor Dashboard",
   "uid": "adxk04g7ity4gf",
-  "version": 8,
+  "version": 1,
   "weekStart": ""
 }

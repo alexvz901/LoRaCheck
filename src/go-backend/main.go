@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -31,7 +32,7 @@ type GatewaysFile struct {
 	Gateways []Gateway `json:"gateways"`
 }
 
-// Prometheus metrics for link status, latitude and longitude
+// Prometheus metrics for link status and location
 var (
 	gatewayLinkStatus = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -41,20 +42,13 @@ var (
 		[]string{"gateway_name", "link_url"},
 	)
 
-	gatewayLatitude = prometheus.NewGaugeVec(
+	// Metric: gateway_location with latitude and longitude as labels
+	gatewayLocation = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Name: "gateway_latitude",
-			Help: "Latitude of the gateway",
+			Name: "gateway_location",
+			Help: "Gateway location with latitude and longitude as labels",
 		},
-		[]string{"gateway_name"},
-	)
-
-	gatewayLongitude = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name: "gateway_longitude",
-			Help: "Longitude of the gateway",
-		},
-		[]string{"gateway_name"},
+		[]string{"gateway_name", "latitude", "longitude"},
 	)
 )
 
@@ -63,10 +57,9 @@ var fetchInterval time.Duration
 
 // Initialize Prometheus metrics and set fetch interval
 func init() {
-	// Register the link status, latitude, and longitude metrics
+	// Register the link status and location metrics
 	prometheus.MustRegister(gatewayLinkStatus)
-	prometheus.MustRegister(gatewayLatitude)
-	prometheus.MustRegister(gatewayLongitude)
+	prometheus.MustRegister(gatewayLocation)
 
 	// Get fetch interval from environment variable (default 1 minute)
 	interval, err := strconv.Atoi(os.Getenv("FETCH_INTERVAL"))
@@ -129,16 +122,16 @@ func FetchGatewayLinkStatus(url string) bool {
 	return false
 }
 
-// UpdateGatewayStatus updates Prometheus metrics for a gateway's link status, latitude, and longitude
+// UpdateGatewayStatus updates Prometheus metrics for a gateway's link status and location
 func UpdateGatewayStatus(gateway Gateway) {
-	// Record latitude and longitude in Prometheus
-	gatewayLatitude.With(prometheus.Labels{
+	// Record latitude and longitude in Prometheus as labels in gateway_location metric
+	gatewayLocation.With(prometheus.Labels{
 		"gateway_name": gateway.Name,
-	}).Set(gateway.Location.Latitude)
+		"latitude":     fmt.Sprintf("%f", gateway.Location.Latitude),
+		"longitude":    fmt.Sprintf("%f", gateway.Location.Longitude),
+	}).Set(1)
 
-	gatewayLongitude.With(prometheus.Labels{
-		"gateway_name": gateway.Name,
-	}).Set(gateway.Location.Longitude)
+	log.Printf("Updated gateway_location metric for gateway %s with latitude %f and longitude %f", gateway.Name, gateway.Location.Latitude, gateway.Location.Longitude)
 
 	// Check link status for each link in the gateway and update Prometheus
 	for _, check := range gateway.Checks {
