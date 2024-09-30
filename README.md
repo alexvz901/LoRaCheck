@@ -3,6 +3,9 @@
 LoRaCheck is a dashboard made to monitor the uptime of IOT gateways.
 It was made by three students as an assignment for school.
 
+# Prerequisites
+A [Docker](https://www.docker.com/) installation.
+
 # Installation
 
 To install LoRaCheck to docker:
@@ -13,6 +16,7 @@ To install LoRaCheck to docker:
 5. open the dashboard on 'localhost:3000'.
 
 # How to add gateways to the dashboard
-todo?
+Todo?
 
-# additional notes 
+# Additional notes
+Additional todo?
