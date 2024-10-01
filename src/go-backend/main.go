@@ -32,7 +32,7 @@ type GatewaysFile struct {
 	Gateways []Gateway `json:"gateways"`
 }
 
-// Prometheus metrics for link status and location
+// Prometheus metrics for link status, location, and last update
 var (
 	gatewayLinkStatus = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -50,6 +50,15 @@ var (
 		},
 		[]string{"gateway_name", "latitude", "longitude"},
 	)
+
+	// Metric: gateway_last_update with gateway name and last update timestamp as labels
+	gatewayLastUpdate = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "gateway_last_update_timestamp",
+			Help: "Last update timestamp for the gateway",
+		},
+		[]string{"gateway_name", "last_update"},
+	)
 )
 
 // Fetch interval in minutes (configurable)
@@ -57,9 +66,10 @@ var fetchInterval time.Duration
 
 // Initialize Prometheus metrics and set fetch interval
 func init() {
-	// Register the link status and location metrics
+	// Register the link status, location, and last update metrics
 	prometheus.MustRegister(gatewayLinkStatus)
 	prometheus.MustRegister(gatewayLocation)
+	prometheus.MustRegister(gatewayLastUpdate)
 
 	// Get fetch interval from environment variable (default 1 minute)
 	interval, err := strconv.Atoi(os.Getenv("FETCH_INTERVAL"))
@@ -85,44 +95,58 @@ func LoadGatewaysConfig(filePath string) (*GatewaysFile, error) {
 	return &gateways, nil
 }
 
-// FetchGatewayLinkStatus fetches the JSON data from a URL and checks if it's "online"
-func FetchGatewayLinkStatus(url string) bool {
+// FetchGatewayLinkStatus fetches the JSON data from a URL and checks if it's "online" and retrieves the last update timestamp
+func FetchGatewayLinkStatus(url string) (bool, time.Time) {
 	log.Printf("Fetching data from URL: %s", url)
 
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Printf("Failed to fetch data from URL: %s, error: %v", url, err)
-		return false
+		return false, time.Time{}
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		log.Printf("Non-200 response from URL: %s, status: %d", url, resp.StatusCode)
-		return false
+		return false, time.Time{}
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("Failed to read response body from URL: %s, error: %v", url, err)
-		return false
+		return false, time.Time{}
 	}
 
 	var result map[string]interface{}
 	if err := json.Unmarshal(body, &result); err != nil {
 		log.Printf("Failed to parse JSON from URL: %s, error: %v", url, err)
-		return false
+		return false, time.Time{}
 	}
 
 	// Assuming 'online' is the field in the JSON that indicates status
-	if online, ok := result["online"].(bool); ok {
-		return online
+	online, ok := result["online"].(bool)
+	if !ok {
+		log.Printf("No 'online' status found in response from URL: %s", url)
+		return false, time.Time{}
 	}
 
-	log.Printf("No 'online' status found in response from URL: %s", url)
-	return false
+	// Parse 'updatedAt' field from the JSON
+	updatedAtStr, ok := result["updatedAt"].(string)
+	if !ok {
+		log.Printf("No 'updatedAt' field found in response from URL: %s", url)
+		return online, time.Time{}
+	}
+
+	updatedAt, err := time.Parse(time.RFC3339, updatedAtStr)
+	if err != nil {
+		log.Printf("Failed to parse 'updatedAt' field: %v", err)
+		return online, time.Time{}
+	}
+
+	return online, updatedAt
 }
 
-// UpdateGatewayStatus updates Prometheus metrics for a gateway's link status and location
+// UpdateGatewayStatus updates Prometheus metrics for a gateway's link status, location, and last update time
 func UpdateGatewayStatus(gateway Gateway) {
 	// Record latitude and longitude in Prometheus as labels in gateway_location metric
 	gatewayLocation.With(prometheus.Labels{
@@ -136,7 +160,8 @@ func UpdateGatewayStatus(gateway Gateway) {
 	// Check link status for each link in the gateway and update Prometheus
 	for _, check := range gateway.Checks {
 		var status float64
-		if FetchGatewayLinkStatus(check.URL) {
+		online, updatedAt := FetchGatewayLinkStatus(check.URL)
+		if online {
 			status = 1 // Link is online
 		} else {
 			status = 0 // Link is offline
@@ -148,7 +173,13 @@ func UpdateGatewayStatus(gateway Gateway) {
 			"link_url":     check.URL,
 		}).Set(status)
 
-		log.Printf("Updated Prometheus metrics for gateway %s, link %s, status: %f", gateway.Name, check.URL, status)
+		// Update Prometheus metric for last update timestamp, with `updatedAt` as label
+		gatewayLastUpdate.With(prometheus.Labels{
+			"gateway_name": gateway.Name,
+			"last_update":  updatedAt.Format(time.RFC3339),
+		}).Set(1)
+
+		log.Printf("Updated Prometheus metrics for gateway %s, link %s, status: %f, last update: %s", gateway.Name, check.URL, status, updatedAt)
 	}
 }
 

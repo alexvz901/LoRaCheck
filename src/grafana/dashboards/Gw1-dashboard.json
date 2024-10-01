@@ -49,8 +49,8 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 8,
+        "h": 8,
+        "w": 6,
         "x": 0,
         "y": 0
       },
@@ -88,6 +88,87 @@
         }
       ],
       "title": "Gateway Uptime (Last 7 Days)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "default": true,
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "dateTimeFromNow"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 4,
+        "x": 6,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "vertical",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^last_update$/",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "gateway_last_update_timestamp{gateway_name=\"Gw1\"}\r\n",
+          "format": "table",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Last updated per broker",
+      "transformations": [
+        {
+          "id": "labelsToFields",
+          "options": {
+            "mode": "columns"
+          }
+        }
+      ],
       "type": "stat"
     },
     {
@@ -149,9 +230,9 @@
         ]
       },
       "gridPos": {
-        "h": 6,
-        "w": 8,
-        "x": 8,
+        "h": 8,
+        "w": 6,
+        "x": 10,
         "y": 0
       },
       "id": 2,
@@ -358,6 +439,6 @@
   "timezone": "browser",
   "title": "Gateway Monitor Dashboard",
   "uid": "adxk04g7ity4gf",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
