@@ -20,10 +20,6 @@ To install LoRaCheck to docker:
 To add new gateways to the dashboard, you can upload them from the included website.
 You will need to input the following information:
 1. a name for the gateway
-2. gateway location
+2. gateway location (latitude and longitude)
 3. gateway link (http(s) or api fetch)
-After this you can add them to the server
-
-
-# Additional notes
-Additional todo?
+After this you can add them to the server and view them in the dashboard.
