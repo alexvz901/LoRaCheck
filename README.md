@@ -16,7 +16,7 @@ To install LoRaCheck to docker:
 5. open the dashboard on 'localhost:3000'.
 
 # How to add gateways to the dashboard
-![afbeelding](https://github.com/user-attachments/assets/f2e1af9e-eb43-4d8f-bace-11d008abdcac)
+![afbeelding](https://github.com/user-attachments/assets/bf831941-c939-4b30-9d85-80cd79f8aed7)
 To add new gateways to the dashboard, you can upload them from the included website.
 You will need to input the following information:
 1. a name for the gateway
