@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -100,23 +100,24 @@
         <thead>
             <tr>
                 <th>Name</th>
-                <th>Locatie</th>
+                <th>Location (Lat, Lon)</th>
                 <th>Type</th>
                 <th>URLs</th>
-                <th>Actie</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            <!-- De rijen worden hier dynamisch geladen -->
+            <!-- Rows will be dynamically inserted here -->
         </tbody>
     </table>
 
     <div class="input-form">
         <label for="name">Name:</label>
-        <input type="text" id="name" placeholder="Name invoeren">
+        <input type="text" id="name" placeholder="Enter name">
         
-        <label for="locatie">Locatie:</label>
-        <input type="text" id="locatie" placeholder="Locatie invoeren">
+        <label for="latitude">Location:</label>
+        <input type="text" id="latitude" placeholder="Enter latitude">
+        <input type="text" id="longitude" placeholder="Enter longitude">
         
         <label for="type">Type:</label>
         <select id="type">
@@ -126,14 +127,14 @@
         </select>
 
         <label for="urls">URLs:</label>
-        <input type="text" id="urls" placeholder="URLs invoeren">
+        <input type="text" id="urls" placeholder="Enter URLs">
         
-        <button onclick="addRowFromInput()">Voeg rij toe</button>
-        <button onclick="saveToServer()">Sla op naar server</button>
+        <button onclick="addRowFromInput()">Add row</button>
+        <button onclick="saveToServer()">Save to server</button>
     </div>
 
     <script>
-        function addRow(name, locatie, type, urls) {
+        function addRow(name, latitude, longitude, type, urls) {
             const table = document.getElementById("data-table").getElementsByTagName('tbody')[0];
             const newRow = table.insertRow();
 
@@ -144,14 +145,14 @@
             const cell5 = newRow.insertCell(4);
 
             cell1.textContent = name;
-            cell2.textContent = locatie;
+            cell2.textContent = `Lat: ${latitude}, Lon: ${longitude}`;
 
-            // Maak een bewerkbare dropdown voor type
+            // Create an editable dropdown for type
             const typeSelect = document.createElement('select');
             const option1 = new Option("HTTPS", "HTTPS");
             const option2 = new Option("HTTP", "HTTP");
             const option3 = new Option("API", "API");
-            
+
             typeSelect.options.add(option1);
             typeSelect.options.add(option2);
             typeSelect.options.add(option3);
@@ -160,29 +161,29 @@
 
             cell4.textContent = urls;
 
-            // Maak knoppen voor verwijdering en fetch
+            // Create buttons for actions (remove and fetch location)
             const actionButtons = document.createElement('div');
             actionButtons.className = "action-buttons";
 
-            // Verwijder knop
+            // Remove button
             const removeButton = document.createElement('button');
             removeButton.textContent = "X";
             removeButton.className = "remove-btn";
             removeButton.onclick = function() {
-                if (confirm('Weet je zeker dat je deze rij wilt verwijderen?')) {
+                if (confirm('Are you sure you want to delete this row?')) {
                     removeRow(removeButton);
                 }
             };
 
-            // Fetch locatie knop
+            // Fetch location button
             const fetchLocationButton = document.createElement('button');
             fetchLocationButton.textContent = "Fetch Location";
             fetchLocationButton.className = "fetch-location-btn";
             fetchLocationButton.onclick = function() {
-                fetchLocation(locatie);
+                fetchLocation(latitude, longitude);
             };
 
-            // Voeg knoppen toe aan de cell
+            // Add buttons to the cell
             actionButtons.appendChild(removeButton);
             actionButtons.appendChild(fetchLocationButton);
             cell5.appendChild(actionButtons);
@@ -190,19 +191,21 @@
 
         function addRowFromInput() {
             const name = document.getElementById("name").value;
-            const locatie = document.getElementById("locatie").value;
+            const latitude = document.getElementById("latitude").value;
+            const longitude = document.getElementById("longitude").value;
             const type = document.getElementById("type").value;
             const urls = document.getElementById("urls").value;
 
-            if(name && locatie && type && urls) {
-                addRow(name, locatie, type, urls);
+            if(name && latitude && longitude && type && urls) {
+                addRow(name, latitude, longitude, type, urls);
 
-                // Maak de inputvelden leeg
+                // Clear input fields
                 document.getElementById("name").value = '';
-                document.getElementById("locatie").value = '';
+                document.getElementById("latitude").value = '';
+                document.getElementById("longitude").value = '';
                 document.getElementById("urls").value = '';
             } else {
-                alert("Vul alle velden in!");
+                alert("Please fill out all fields!");
             }
         }
 
@@ -211,10 +214,10 @@
             row.parentNode.removeChild(row);
         }
 
-        function fetchLocation(locatie) {
-            // Hier kun je de locatieverwerking doen
-            alert('Fetching location voor: ' + locatie);
-            // Je kunt hier eventueel een API aanroepen om details op te halen
+        function fetchLocation(lat, lon) {
+            // Fetching location logic can be added here
+            alert('Fetching location for: Latitude ' + lat + ', Longitude ' + lon);
+            // You could call an API to retrieve more details here
         }
 
         function saveToServer() {
@@ -225,13 +228,15 @@
 
             for (let i = 0; i < rows.length; i++) {
                 const name = rows[i].getElementsByTagName("td")[0].textContent;
-                const locatie = rows[i].getElementsByTagName("td")[1].textContent;
-                const type = rows[i].getElementsByTagName("select")[0].value;  // Haal waarde van dropdown op
+                const location = rows[i].getElementsByTagName("td")[1].textContent;
+                const [latitude, longitude] = location.split(',').map(item => item.trim().split(': ')[1]);
+                const type = rows[i].getElementsByTagName("select")[0].value;  // Get value from dropdown
                 const urls = rows[i].getElementsByTagName("td")[3].textContent;
 
                 data.push({
                     name: name,
-                    locatie: locatie,
+                    latitude: latitude,
+                    longitude: longitude,
                     type: type,
                     urls: urls
                 });
