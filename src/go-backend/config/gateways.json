@@ -3,22 +3,13 @@
     {
       "name": "Gw1",
       "location": {
-        "latitude": 52.3676,
-        "longitude": 4.9041
+        "latitude": 51.4861316,
+        "longitude": 5.6583154
       },
       "checks": [
         {
           "type": "https",
-          "url": "https://mapper.packetbroker.net/api/v2/gateways/netID=000013%2CtenantID=ttn%2Cid=ttn0478-gw-011"
-        },
-        {
-          "type": "https",
-          "url": "https://www.thethingsnetwork.org/gateway-data/gateway/ttn0478-gw-011"
-        },
-        {
-          "type": "api",
-          "url": "http://example.com/api1",
-          "expected_status": 200
+          "url": "https://mapper.packetbroker.net/api/v2/gateways/netID=000013%2CtenantID=ttn%2Cid=roc-ter-aa-002"
         }
       ]
     }
