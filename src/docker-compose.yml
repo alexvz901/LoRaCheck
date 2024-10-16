@@ -36,5 +36,16 @@ services:
     depends_on:
       - prometheus
 
+  admin-console:
+    build:
+      context: ./admin-console
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    networks:
+      - monitor-net
+    depends_on:
+      - grafana
+
 networks:
   monitor-net:
