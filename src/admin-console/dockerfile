@@ -1,0 +1,11 @@
+# Gebruik de officiële nginx image als basis
+FROM nginx:alpine
+
+# Kopieer het index.html bestand naar de standaard Nginx webserver directory
+COPY index.html /usr/share/nginx/html/
+
+# Maak poort 80 beschikbaar
+EXPOSE 80
+
+# Start de nginx webserver
+CMD ["nginx", "-g", "daemon off;"]
